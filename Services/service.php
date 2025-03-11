@@ -14,7 +14,7 @@ try {
         $datos = $_GET;
     }
 
-
+    //print_r($datos);
     switch (strtolower(trim($datos['Controller']))) {
         case "city":
             $Controller_A = new Ciudad_Controller();

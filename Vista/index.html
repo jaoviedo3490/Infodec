@@ -65,6 +65,7 @@
                 }).then(response => {
                     if (!response.ok) {
                         throw new Exception("El servidor devolvio una respuesta erronea");
+                        $("#loader").hide();
                     }
                     return response.json();
                 }).then(data => {
@@ -97,6 +98,7 @@
                                                 (selectOption == "Tokio") ? "JPY" :
                                                     (selectOption) == "Paris" ? "EUR" : "";
                                     let datos = { Nombre: Moneda, Controller: 'money' };
+                                    console.log(`http://localhost/InfoDec/Services/Service.php?Nombre=${Moneda}&Controller=money`)
                                     fetch(`http://localhost/InfoDec/Services/Service.php?Nombre=${Moneda}&Controller=money`, {
                                         method: "GET",
                                         headers: {
@@ -106,6 +108,7 @@
                                         .then(response => {
                                             if (!response.ok) {
                                                 throw new Exception("Ocurrio un error al realizar la peticion");
+                                                
                                             }
                                             return response.json();
                                         })
@@ -189,8 +192,9 @@
                         default: alert("Respuesta invalida"); break;
                     }
                 }).catch(error => {
-                    alert(`Ocurrio un error ${error}`);
+                    alert(`Ocurrio un error: ${error}`);
                     console.log(error);
+                    $("#loader").hide();
                 })
 
             }

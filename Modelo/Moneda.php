@@ -39,7 +39,7 @@ class Moneda {
            // var_dump($CodigoM);
             $Moneda = R::find('moneda', "_codigo_moneda = ? OR _codigo_moneda = ?", [$CodigoM,'COP']);
             //var_dump($Moneda);
-            if ($Moneda) { // Verifica si la moneda existe
+            if ($Moneda) {
                 $this->Message['Success'] = true;
                 $this->Message['Message'] = "";
                 $this->Message['Monedas'] = $Moneda;
