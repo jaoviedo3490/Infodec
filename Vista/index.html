@@ -10,6 +10,7 @@
 
 <body>
     <div>
+        
         <div class="container">
             <div class="row-12">
                 <div class="col-12">
@@ -37,18 +38,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+        <div id="loader" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2">Cargando datos...</p>
+        </div>
 </body>
 <script src="../Vista/src/assets/Scripts/functions.js" type="module"></script>
 <script>
 
     $(document).ready(function () {
+        $("#loader").hide(); 
         $("#options").on('change', function () {
 
             var selectOption = $("#options").val();
             //const data = { "Nombre": selectOption , "Controller":"city"};
             if (selectOption !== "Seleccion") {
                 debugger;
-
+                $("#loader").show();
                 let datos = { Nombre: selectOption, Controller: "city" };
 
                 fetch("http://localhost/InfoDec/Services/Service.php", {
@@ -60,6 +68,7 @@
                     }
                     return response.json();
                 }).then(data => {
+                    $("#loader").hide(); 
                     let Climate = JSON.parse(data.Data.City.API_Clima);
                     let temp_c = Climate.current.temp_c;
                     let hora_actualizacion = Climate.current.last_updated;
