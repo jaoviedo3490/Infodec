@@ -1,0 +1,12 @@
+{
+    "name": "info-dec/app",
+    "description": "null",
+    "autoload": {
+        "psr-4": {
+            "InfoDec\\App\\": "src/"
+        }
+    },
+    "require": {
+        "gabordemooij/redbean": "^5.7"
+    }
+}

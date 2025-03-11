@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../Vista/src/assets/css/bootstrap.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <div class="container">
+            <div class="row-12">
+                <div class="col-12">
+                    <form class="form-control">
+                        <select id="options" name="menu" class="form-control">
+                            <option>Seleccion</option>
+                            <option>Londres</option>
+                            <option>New York</option>
+                            <option>Paris</option>
+                            <option>Tokio</option>
+                            <option>Madrid</option>
+                        </select>
+                        <div id="content"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+</body>
+<script src="../Vista/src/assets/Scripts/functions.js" type="module"></script>
+<script>
+
+    $(document).ready(function () {
+        $("#options").on('change', function () {
+
+            var selectOption = $("#options").val();
+            //const data = { "Nombre": selectOption , "Controller":"city"};
+            if (selectOption !== "Seleccion") {
+                debugger;
+
+                let datos = { Nombre: selectOption, Controller: "city" };
+
+                fetch("http://localhost/InfoDec/Services/Service.php", {
+                    method: "POST",
+                    body: JSON.stringify(datos)
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Exception("El servidor devolvio una respuesta erronea");
+                    }
+                    return response.json();
+                }).then(data => {
+                    let Climate = JSON.parse(data.Data.City.API_Clima);
+                    let temp_c = Climate.current.temp_c;
+                    let hora_actualizacion = Climate.current.last_updated;
+
+
+                    switch (data.StatusCode) {
+                        case 200:
+                            $("#content").html(`
+                                            <div class="col-md-12">
+                                                <form class="form-control" id="city-form">
+                                                <div class="col-md-12 form-group">
+                                                    <label for='COP' class='label'>Precio COP</label>
+                                                    <input type='number' class="form-control" required id="COP"/>
+                                                </div>
+                                                <a  href="#" class="col-md-12 m-1 btn btn-primary" id="next">Siguiente</a>
+                                                </form>
+                                            </div>`);
+
+                            $("#next").click(function () {
+
+                                if ($("#COP").val() !== "") {
+                                    let presupuesto = $("#COP").val();
+                                    const Moneda = (selectOption == "Londres") ? "GBP" :
+                                        (selectOption == "Madrid") ? "EUR" :
+                                            (selectOption == "New York") ? "USD" :
+                                                (selectOption == "Tokio") ? "JPY" :
+                                                    (selectOption) == "Paris" ? "EUR" : "";
+                                    let datos = { Nombre: Moneda, Controller: 'money' };
+                                    fetch(`http://localhost/InfoDec/Services/Service.php?Nombre=${Moneda}&Controller=money`, {
+                                        method: "GET",
+                                        headers: {
+                                            "Content-Type": "application/json"
+                                        }
+                                    })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Exception("Ocurrio un error al realizar la peticion");
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            console.log(data);
+
+                                            console.log(data);
+                                            let moneda = "";
+                                            var conversion = "";
+                                            var img = "";
+                                            let moneda_local = Object.values(data.Data.Money).find(moneda => moneda._codigo_moneda === "COP");
+                                            let moneda_extrangera = Object.values(data.Data.Money).find(moneda => moneda._codigo_moneda === Moneda);
+                                            moneda_local = moneda_local._valor;
+                                            //console.log(data.Data.Money._codigo_moneda + " ||| " + Moneda);
+                                            moneda_extrangera = moneda_extrangera._valor;
+                                            switch (selectOption) {
+                                                case "Londres":
+                                                    moneda = "Libras Esterlinas";
+                                                    conversion = moneda_extrangera / moneda_local * presupuesto;
+                                                    img = "esterlina.png";
+                                                    break;
+                                                case "Madrid":
+                                                    moneda = "Euros";
+                                                    conversion = moneda_extrangera / moneda_local * presupuesto;
+                                                    img = "euro.png";
+                                                    break;
+                                                case "New York":
+                                                    moneda = "Dolares";
+                                                    conversion = moneda_extrangera / moneda_local * presupuesto;
+                                                    img = "dolar.png";
+                                                    break;
+                                                case "Paris":
+                                                    moneda = "Euros";
+                                                    conversion = moneda_extrangera / moneda_local * presupuesto;
+                                                    img = "euro.png";
+                                                    break;
+                                                case "Tokio":
+                                                    moneda = "Yenes";
+                                                    conversion = moneda_extrangera / moneda_local * presupuesto;
+                                                    img = "yen.png";
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+
+                                            $("#content").html(`
+                                                                <div class="container">
+                                                                    <div class="row">
+                                                                        <div class="col-md-4 col-sm-4"><h3>Temperatura:</h3></div>
+                                                                        <div class="col-md-4 col-sm-4"><p class="badge bg-${temperature_switch_badge(temp_c)}">${temp_c} C°</p></div>
+                                                                        <div class="col-md-4 col-sm-4"><p>${hora_actualizacion}</p></div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-4 col-sm-4"><h3>Cambio de moneda local:</h3></div>
+                                                                        <div class="col-md-4 col-sm-4"><p>${conversion.toFixed(2)} ${moneda}</p></div>
+                                                                        <div class="col-md-4 col-sm-4"><img style='width:10%;heigth:10%' src='../Vista/src/assets/images/monedas/${img}'/></div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-3 col-sm-3"><h3>Tasa de cambio:</h3></div>
+                                                                        <div class="col-md-3 col-sm-3"><p>${(moneda_local / moneda_extrangera).toFixed(2)}<p></div>
+                                                                        <div class="col-md-3 col-sm-3"><p>Presupuesto(COP):</p></div>
+                                                                        <div class="col-md-3 col-sm-3"><p>${presupuesto} Pesos colombianos<p></div>
+                                                                    </div>
+                                                                </div>
+                                                            `);
+
+
+                                        })
+
+                                } else {
+                                    alert("El formulario no puede estar vacio");
+                                }
+
+
+                            })
+                            break;
+                        case 400: alert("Respuesta invalida"); break;
+                        case 404: alert("Recurso no encontrado"); break;
+                        case 405: alert("Metodo no soportado"); break;
+                        case 500: alert("Error interno del servidor"); break;
+                        default: alert("Respuesta invalida"); break;
+                    }
+                }).catch(error => {
+                    alert(`Ocurrio un error ${error}`);
+                    console.log(error);
+                })
+
+            }
+        })
+    })
+</script>
+
+</html>
