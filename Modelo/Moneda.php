@@ -28,7 +28,7 @@ class Moneda {
             $this->Message['Message'] = "Ocurrió un error al crear el registro: " . $except->getMessage();
             $this->Message['Code'] = 500;
             error_log($this->Message['Message']);
-            //print_r("malparido");
+            //
         }
         return $this->Message;
     }
